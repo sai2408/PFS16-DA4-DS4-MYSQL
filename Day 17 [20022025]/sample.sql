@@ -1,0 +1,70 @@
+CREATE DATABASE EXAMPLE2;
+
+USE EXAMPLE2;
+
+CREATE TABLE locations (
+    location_id INT PRIMARY KEY,
+    city VARCHAR(50)
+);
+
+CREATE TABLE departments (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(50),
+    location_id INT,
+    FOREIGN KEY (location_id) REFERENCES locations(location_id)
+);
+
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    salary DECIMAL(10, 2),
+    department_id INT,
+    FOREIGN KEY (department_id) REFERENCES departments(department_id)
+);
+
+INSERT INTO locations (location_id, city) VALUES
+(1, 'New York'),
+(2, 'Los Angeles'),
+(3, 'Chicago');
+
+INSERT INTO departments (department_id, department_name, location_id) VALUES
+(101, 'HR', 1),
+(102, 'IT', 2),
+(103, 'Finance', 3),
+(104, 'Marketing', 1);
+
+INSERT INTO employees (employee_id, name, salary, department_id) VALUES
+(1, 'Alice', 75000, 101),
+(2, 'Bob', 85000, 102),
+(3, 'Charlie', 65000, 103),
+(4, 'David', 90000, 102),
+(5, 'Eva', 72000, 104),
+(6, 'Frank', 82000, 101),
+(7, 'Grace', 60000, 104);
+
+SELECT * FROM EMPLOYEES;
+
+-- scalar
+SELECT NAME,SALARY 
+FROM EMPLOYEES 
+WHERE SALARY = (SELECT MAX(SALARY) FROM EMPLOYEES);
+
+-- MULTI ROW
+SELECT NAME 
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID IN (SELECT DEPARTMENT_ID FROM DEPARTMENTS WHERE LOCATION_ID = 1);
+
+-- MULTI COLUMN
+
+SELECT DEPARTMENT_ID,MAX(SALARY) FROM EMPLOYEES GROUP BY DEPARTMENT_ID;
+SELECT NAME,DEPARTMENT_ID
+FROM EMPLOYEES 
+WHERE (DEPARTMENT_ID,SALARY) IN (SELECT DEPARTMENT_ID,MAX(SALARY) FROM EMPLOYEES GROUP BY DEPARTMENT_ID);
+
+-- CO RELATED
+
+SELECT AVG(SALARY) FROM EMPLOYEES GROUP BY DEPARTMENT_ID;
+
+SELECT E1.NAME,E1.SALARY
+FROM EMPLOYEES E1
+WHERE E1.SALARY > (SELECT AVG(SALARY) FROM EMPLOYEES E2 WHERE E1.DEPARTMENT_ID = E2.DEPARTMENT_ID);
